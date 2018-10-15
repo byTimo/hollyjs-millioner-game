@@ -74,16 +74,23 @@ class RegistraionPage {
         return new Promise(resolve => this.resolver = resolve);
     }
 
-    register() {
+    end(user) {
         this.dispatcher.deattach("register");
+        this.page.style.display = "none";
+        this.form.reset();
+        this.resolver(user);
+    }
+
+    register() {
         const data = new FormData(this.form);
         const user = {};
         for (let [key, value] of data.entries()) {
             user[key] = value;
         }
 
-        this.page.style.display = "none";
-        this.resolver(user);
+        if(user.name && user.email){
+            this.end(user);
+        }
     }
 }
 
@@ -97,8 +104,8 @@ class GamePage {
             score: 0
         }
         this.roundTime = config.time;
-        this.tasks = [...tasks];
-        this.currentTaskIndex = 0;
+        this.rounds = [...tasks];
+        this.currentRoundIndex = 0;
 
         this.page = document.querySelector(".game");
         this.taskContainer = document.querySelector(".task");
@@ -108,29 +115,39 @@ class GamePage {
     run() {
         this.dispatcher.attach("answer", this.answer.bind(this))
         this.page.style.display = "block";
-        this.renderTask()
+        this.renderRound(0)
         return new Promise(resolve => this.resolver = resolve);
     }
 
     end() {
         this.dispatcher.deattach("answer");
-        if (this.taskContainer.firstChild) {
-            this.taskContainer.removeChild(this.taskContainer.firstChild);
-        }
+        this.clearTask();
         this.page.style.display = "none";
         this.resolver(this.result)
     }
 
-    renderTask() {
+    answer(number) {
+        if (this.rounds[this.currentRoundIndex].rightAnswer !== number - 1) {
+            return this.end();
+        }
+        this.result.score += this.rounds[this.currentRoundIndex].factor;
+        this.currentRoundIndex++;
+        if (this.currentRoundIndex === this.rounds.length) {
+            return this.end();
+        }
+        this.renderRound(this.currentRoundIndex);
+    }
+
+    renderRound(number) {
+        this.clearTask();
+        this.taskContainer.appendChild(this.createTaskTag(this.rounds[number]));
+        this.rounds[number].answers.map((x, i) => this.answerContainers[i].textContent = x);
+    }
+
+    clearTask() {
         if (this.taskContainer.firstChild) {
             this.taskContainer.removeChild(this.taskContainer.firstChild);
         }
-
-        if (this.tasks[this.currentTaskIndex].src) {
-            this.taskContainer.appendChild(this.createTaskTag(this.tasks[this.currentTaskIndex]));
-        }
-
-        this.tasks[this.currentTaskIndex].answers.map((x, i) => this.answerContainers[i].textContent = x);
     }
 
     createTaskTag(task) {
@@ -143,18 +160,6 @@ class GamePage {
         const p = document.createElement("p");
         p.textContent = task.task;
         return p;
-    }
-
-    answer(number) {
-        if (this.tasks[this.currentTaskIndex].rightAnswer !== number - 1) {
-            return this.end();
-        }
-        this.result.score += this.tasks[this.currentTaskIndex].factor;
-        this.currentTaskIndex++;
-        if (this.currentTaskIndex === this.tasks.length) {
-            return this.end();
-        }
-        this.renderTask();
     }
 }
 
