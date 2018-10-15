@@ -21,92 +21,116 @@ class Storage {
     }
 }
 
+class Dispatcher {
+    constructor() {
+        this.listeners = {};
+    }
+
+    attach(message, callback) {
+        this.listeners[message] = callback;
+    }
+
+    deattach(message) {
+        delete this.listeners[message];
+    }
+
+    push(message, parameter) {
+        this.listeners[message](parameter);
+    }
+}
+
 class Game {
     constructor(config, levels) {
-        this.page = null;
         this.config = config;
         this.level = levels[config.level];
+        this.dispatcher = new Dispatcher();
+    }
+
+    push(message, parameter) {
+        this.dispatcher.push(message, parameter);
     }
 
     async run() {
         while (true) {
-            this.page = new RegistraionPage();
-            const user = await this.page.run();
-            this.page = new GamePage(user, this.config, this.level);
-            const result = await this.page.run();
+            const user = await new RegistraionPage(this.dispatcher).run();
+            const result = await new GamePage(this.dispatcher, user, this.config, this.level).run();
             Storage.save(result.name, result.email, result.score);
-            this.page = new ResultPage(result);
-            await this.page.run();
+            await new ResultPage(this.dispatcher, result).run();
         }
     }
 }
 
 class RegistraionPage {
-    constructor() {
+    constructor(dispatcher) {
+        this.dispatcher = dispatcher;
         this.resolver = null;
-        this.dom = document.querySelector(".registration");
+        this.page = document.querySelector(".registration");
+        this.form = document.querySelector(".form");
     }
 
     run() {
-        this.dom.style.display = "block";
+        this.dispatcher.attach("register", this.register.bind(this))
+        this.page.style.display = "block";
         return new Promise(resolve => this.resolver = resolve);
     }
 
-    end() {
-        const form = document.querySelector(".form");
-        const data = new FormData(form);
-
+    register() {
+        this.dispatcher.deattach("register");
+        const data = new FormData(this.form);
         const user = {};
         for (let [key, value] of data.entries()) {
             user[key] = value;
         }
 
-        this.dom.style.display = "none";
+        this.page.style.display = "none";
         this.resolver(user);
     }
 }
 
 class GamePage {
-    constructor(user, config, tasks) {
+    constructor(dispatcher, user, config, tasks) {
         this.resolver = null;
-        this.score = 0;
-        this.user = user;
-        this.config = config;
+        this.dispatcher = dispatcher;
+        this.result = {
+            name: user.name,
+            email: user.email,
+            score: 0
+        }
+        this.roundTime = config.time;
         this.tasks = [...tasks];
-        this.task = 0;
-        this.dom = document.querySelector(".game");
-        this.taskDom = document.querySelector(".task");
-        this.answerDoms = [1, 2, 3, 4].map(x => document.querySelector(`.answer-${x}`));
+        this.currentTaskIndex = 0;
+
+        this.page = document.querySelector(".game");
+        this.taskContainer = document.querySelector(".task");
+        this.answerContainers = [1, 2, 3, 4].map(x => document.querySelector(`.answer-${x}`));
     }
 
     run() {
-        this.dom.style.display = "block";
+        this.dispatcher.attach("answer", this.answer.bind(this))
+        this.page.style.display = "block";
         this.renderTask()
         return new Promise(resolve => this.resolver = resolve);
     }
 
     end() {
-        if (this.taskDom.firstChild) {
-            this.taskDom.removeChild(this.taskDom.firstChild);
+        this.dispatcher.deattach("answer");
+        if (this.taskContainer.firstChild) {
+            this.taskContainer.removeChild(this.taskContainer.firstChild);
         }
-        this.dom.style.display = "none";
-        this.resolver({
-            name: this.user.name,
-            email: this.user.email,
-            score: this.score
-        })
+        this.page.style.display = "none";
+        this.resolver(this.result)
     }
 
     renderTask() {
-        if (this.taskDom.firstChild) {
-            this.taskDom.removeChild(this.taskDom.firstChild);
+        if (this.taskContainer.firstChild) {
+            this.taskContainer.removeChild(this.taskContainer.firstChild);
         }
 
-        if (this.tasks[this.task].src) {
-            this.taskDom.appendChild(this.createTaskTag(this.tasks[this.task]));
+        if (this.tasks[this.currentTaskIndex].src) {
+            this.taskContainer.appendChild(this.createTaskTag(this.tasks[this.currentTaskIndex]));
         }
 
-        this.tasks[this.task].answers.map((x, i) => this.answerDoms[i].textContent = x);
+        this.tasks[this.currentTaskIndex].answers.map((x, i) => this.answerContainers[i].textContent = x);
     }
 
     createTaskTag(task) {
@@ -121,13 +145,13 @@ class GamePage {
         return p;
     }
 
-    handleAnswerClick(answer) {
-        if (this.tasks[this.task].rightAnswer !== answer - 1) {
+    answer(number) {
+        if (this.tasks[this.currentTaskIndex].rightAnswer !== number - 1) {
             return this.end();
         }
-        this.score += this.tasks[this.task].factor;
-        this.task++;
-        if (this.task === this.tasks.length) {
+        this.result.score += this.tasks[this.currentTaskIndex].factor;
+        this.currentTaskIndex++;
+        if (this.currentTaskIndex === this.tasks.length) {
             return this.end();
         }
         this.renderTask();
@@ -135,21 +159,24 @@ class GamePage {
 }
 
 class ResultPage {
-    constructor(result) {
+    constructor(dispatcher, result) {
         this.resolver = null;
+        this.dispatcher = dispatcher;
         this.result = result;
-        this.dom = document.querySelector(".gameover");
-        this.resultDom = document.querySelector(".result");
+        this.page = document.querySelector(".gameover");
+        this.resultContainer = document.querySelector(".result");
     }
 
     run() {
-        this.dom.style.display = "block";
-        this.resultDom.textContent = this.result.score;
+        this.dispatcher.attach("end", this.end.bind(this));
+        this.page.style.display = "block";
+        this.resultContainer.textContent = this.result.score;
         return new Promise(resolve => this.resolver = resolve);
     }
 
     end() {
-        this.dom.style.display = "none";
+        this.dispatcher.deattach("end");
+        this.page.style.display = "none";
         this.resolver();
     }
 }

@@ -13,7 +13,7 @@
                 <form class="form">
                     <input class="block" type="text" id="name" name="name" />
                     <input class="block" type="email" id="email" name="email" />
-                    <button class="button" type="button" onclick="game.page.end()">
+                    <button class="button" type="button" onclick="game.push('register')">
                         Поехали
                     </button>
                 </form>
@@ -22,15 +22,15 @@
         <div class="game page">
             <div class="task block"></div>
             <div class="answers">
-                <button class="answer-1 button" onclick="game.page.handleAnswerClick(1)" />
-                <button class="answer-2 button" onclick="game.page.handleAnswerClick(2)" />
-                <button class="answer-3 button" onclick="game.page.handleAnswerClick(3)" />
-                <button class="answer-4 button" onclick="game.page.handleAnswerClick(4)" />
+                <button class="answer-1 button" onclick="game.push('answer', 1);" />
+                <button class="answer-2 button" onclick="game.push('answer', 2);" />
+                <button class="answer-3 button" onclick="game.push('answer', 3);" />
+                <button class="answer-4 button" onclick="game.push('answer', 4);" />
             </div>
         </div>
         <div class="gameover page">
             <div class="result block"></div>
-            <button class="button" onclick="game.page.end();">
+            <button class="button" onclick="game.push('end');">
                 Конец
             </button>
         </div>
