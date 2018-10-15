@@ -1,0 +1,96 @@
+:root {
+    --light-blue: rgb(102, 189, 204);
+    --blue: rgb(3, 14, 51);
+    --background-blue: rgb(1, 43, 116);
+    --orange: rgb(255, 204, 0);
+    --dark-orange:rgb(255, 102, 0);
+}
+
+html,
+body {
+    margin: 0;
+    height: 100%;
+    background-color: var(--background-blue);
+}
+
+img {
+    width: auto;
+    height: 400px;
+}
+
+.root {
+    height: 100%;
+}
+
+.page {
+    display: none;
+    width: 1280px;
+    margin: auto;
+    height: 100%;
+}
+
+.block {
+    border: 5px solid var(--light-blue);
+    color: var(--light-blue);
+    background: var(--blue);
+    padding: 30px 50px;
+    min-width: 300px;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.button {
+    color: var(--light-blue);
+    background: var(--blue);
+    border: 5px solid var(--light-blue);
+    padding: 30px 50px;
+    min-width: 300px;
+    font-size: 24px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.button:hover {
+    background: var(--orange);
+    color: white;
+    border: 5px solid white;
+}
+
+.registraionConteiner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form {
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.task {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+    margin: 50px 0;
+}
+
+.answers {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.gameover {
+    text-align: center;
+}
+
+.result {
+    color: var(--orange);
+    text-align: center;
+    margin: 50px 0;
+}
