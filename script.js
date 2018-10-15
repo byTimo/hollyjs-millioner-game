@@ -88,7 +88,7 @@ class RegistraionPage {
             user[key] = value;
         }
 
-        if(user.name && user.email){
+        if (user.name && user.email) {
             this.end(user);
         }
     }
@@ -127,15 +127,31 @@ class GamePage {
     }
 
     answer(number) {
-        if (this.rounds[this.currentRoundIndex].rightAnswer !== number - 1) {
-            return this.end();
-        }
-        this.result.score += this.rounds[this.currentRoundIndex].factor;
+        const round = this.rounds[this.currentRoundIndex];
+        round.rightAnswer === number ? this.nextRound(number) : this.loose(round.rightAnswer, number);
+    }
+
+    nextRound(number) {
+        this.answerContainers[number].classList.toggle("good");
+        this.result.score += round.factor;
         this.currentRoundIndex++;
-        if (this.currentRoundIndex === this.rounds.length) {
-            return this.end();
-        }
-        this.renderRound(this.currentRoundIndex);
+        setTimeout(() => {
+            this.answerContainers[number].classList.toggle("good");
+            if (this.currentRoundIndex === this.rounds.length) {
+                return this.end();
+            }
+            this.renderRound(this.currentRoundIndex);
+        }, 1000)
+    }
+
+    loose(rightAnswer, number) {
+        this.answerContainers[number].classList.toggle("bad");
+        this.answerContainers[rightAnswer].classList.toggle("good");
+        setTimeout(() => {
+            this.answerContainers[number].classList.toggle("bad");
+            this.answerContainers[rightAnswer].classList.toggle("good");
+            this.end()
+        }, 1000);
     }
 
     renderRound(number) {

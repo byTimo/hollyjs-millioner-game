@@ -4,6 +4,23 @@
     --background-blue: rgb(1, 43, 116);
     --orange: rgb(255, 204, 0);
     --dark-orange:rgb(255, 102, 0);
+    --green: rgb(102, 204, 0);
+}
+
+@keyframes good {
+    to {
+        background: var(--green);
+        color: white;
+        border-color: white;
+    }
+}
+
+@keyframes bad {
+    to {
+        background: var(--dark-orange);
+        color: white;
+        border-color: white;
+    }
 }
 
 html,
@@ -83,6 +100,14 @@ img {
     flex-flow: row wrap;
     justify-content: space-evenly;
     align-items: center;
+}
+
+.good {
+    animation: good 300ms linear infinite alternate;
+}
+
+.bad {
+    animation: bad 300ms linear infinite alternate;
 }
 
 .gameover {
