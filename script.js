@@ -39,6 +39,37 @@ class Dispatcher {
     }
 }
 
+class Timer {
+    constructor(time, callback) {
+        this.time = time;
+        this.callback = callback;
+        this.interval = 0;
+        this.state = time;
+    }
+
+    start() {
+        clearInterval(this.interval);
+        this.callback(this.state);
+        this.interval = setInterval(this.tick.bind(this), 1000);
+    }
+
+    stop() {
+        clearInterval(this.interval);
+    }
+
+    restart() {
+        clearInterval(this.interval);
+        this.state = this.time;
+        this.callback(this.state);
+        this.interval = setInterval(this.tick.bind(this), 1000);
+    }
+
+    tick() {
+        this.state -= 1000;
+        this.callback(this.state);
+    }
+}
+
 class Game {
     constructor(config, levels) {
         this.config = config;
@@ -103,13 +134,24 @@ class GamePage {
             email: user.email,
             score: 0
         }
-        this.roundTime = config.time;
         this.rounds = [...tasks];
         this.currentRoundIndex = 0;
 
         this.page = document.querySelector(".game");
         this.taskContainer = document.querySelector(".task");
         this.answerContainers = [1, 2, 3, 4].map(x => document.querySelector(`.answer-${x}`));
+
+        this.timer = new Timer(config.time, this.timerTick.bind(this))
+        this.timerAnimation = document.querySelector(".timer");
+        this.timerNumber = document.querySelector(".timerNumber > div");
+    }
+
+    timerTick(time) {
+        this.timerNumber.textContent = time / 1000;
+        if(time <= 0){
+            this.timer.stop();
+            this.end();
+        }
     }
 
     run() {
@@ -127,13 +169,23 @@ class GamePage {
     }
 
     answer(number) {
+        this.timer.stop();
+        this.stopAnimation();
         const round = this.rounds[this.currentRoundIndex];
-        round.rightAnswer === number ? this.nextRound(number) : this.loose(round.rightAnswer, number);
+        round.rightAnswer === number ? this.nextRound(number, round.factor) : this.loose(round.rightAnswer, number);
     }
 
-    nextRound(number) {
+    startAnimation() {
+        this.timerAnimation.style.display = "block";
+    }
+
+    stopAnimation() {
+        this.timerAnimation.style.display = "none";
+    }
+
+    nextRound(number, factor) {
         this.answerContainers[number].classList.toggle("good");
-        this.result.score += round.factor;
+        this.result.score += factor;
         this.currentRoundIndex++;
         setTimeout(() => {
             this.answerContainers[number].classList.toggle("good");
@@ -158,6 +210,8 @@ class GamePage {
         this.clearTask();
         this.taskContainer.appendChild(this.createTaskTag(this.rounds[number]));
         this.rounds[number].answers.map((x, i) => this.answerContainers[i].textContent = x);
+        this.timer.restart();
+        this.startAnimation();
     }
 
     clearTask() {
