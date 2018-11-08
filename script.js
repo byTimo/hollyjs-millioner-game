@@ -1,3 +1,7 @@
+function random(from, to) {
+    return Math.floor(Math.random() * (to - from + 1)) + from;
+}
+
 class Storage {
     static save(name, email, score) {
         const data = Storage.select();
@@ -39,37 +43,6 @@ class Dispatcher {
     }
 }
 
-class Timer {
-    constructor(time, callback) {
-        this.time = time;
-        this.callback = callback;
-        this.interval = 0;
-        this.state = time;
-    }
-
-    start() {
-        clearInterval(this.interval);
-        this.callback(this.state);
-        this.interval = setInterval(this.tick.bind(this), 1000);
-    }
-
-    stop() {
-        clearInterval(this.interval);
-    }
-
-    restart() {
-        clearInterval(this.interval);
-        this.state = this.time;
-        this.callback(this.state);
-        this.interval = setInterval(this.tick.bind(this), 1000);
-    }
-
-    tick() {
-        this.state -= 1000;
-        this.callback(this.state);
-    }
-}
-
 class Game {
     constructor(config, levels) {
         this.config = config;
@@ -83,7 +56,7 @@ class Game {
 
     async run() {
         while (true) {
-            const user = await new RegistraionPage(this.dispatcher).run();
+            const user = await new RegistrationPage(this.dispatcher).run();
             const result = await new GamePage(this.dispatcher, user, this.config, this.level).run();
             Storage.save(result.name, result.email, result.score);
             await new ResultPage(this.dispatcher, result).run();
@@ -91,7 +64,7 @@ class Game {
     }
 }
 
-class RegistraionPage {
+class RegistrationPage {
     constructor(dispatcher) {
         this.dispatcher = dispatcher;
         this.resolver = null;
@@ -125,6 +98,95 @@ class RegistraionPage {
     }
 }
 
+class Timer {
+    constructor(time, lostCallback) {
+        this.spiner = document.querySelector(".spiner");
+        this.inner = document.querySelector(".spinner-inner");
+        this.mask = document.querySelector(".spinner-mask");
+        this.maskTwo = document.querySelector(".spinner-mask-two");
+        this.timer = document.querySelector(".timer");
+
+        this.time = time;
+        this.callback = lostCallback;
+        this.interval = 0;
+    }
+
+    start() {
+        clearInterval(this.interval);
+        this.state = this.time;
+        this.timer.textContent = this.time / 1000;
+        this.interval = setInterval(this.tick.bind(this), 1000);
+        this.startAnimation();
+    }
+
+    startAnimation() {
+        this.inner.style.animation = `inner ${this.time / 1000}s linear`;
+        this.mask.style.animation = `mask ${this.time / 1000}s linear`;
+        this.maskTwo.style.animation = `mask-two ${this.time / 1000}s linear`;
+    }
+
+    stop() {
+        this.stopAnimation();
+        clearInterval(this.interval);
+    }
+
+    stopAnimation() {
+        this.inner.style.animationPlayState = "paused";
+        this.mask.style.animationPlayState = "paused";
+        this.maskTwo.style.animationPlayState = "paused";
+        setTimeout(() => {
+            this.inner.style.animation = undefined;
+            this.mask.style.animation = undefined;
+            this.maskTwo.style.animation = undefined;
+        }, 750)
+    }
+
+    tick() {
+        this.state -= 1000;
+        this.timer.textContent = this.state / 1000;
+        if (this.state <= 0) {
+            this.stop();
+            this.callback();
+        }
+    }
+}
+
+
+class AnswerButton {
+    constructor(dom) {
+        this.dom = dom;
+        this.reset();
+    }
+
+    isRight() {
+        return this.isRight;
+    }
+
+    setAnswer(index, text, isRight) {
+        this.index = index;
+        this.isRight = isRight;
+        this.dom.textContent = text;
+    }
+
+    good() {
+        this.setState("good");
+    }
+
+    bad() {
+        this.setState("bad");
+    }
+
+    setState(state) {
+        this.reset();
+        this.dom.classList.add(state);
+    }
+
+    reset() {
+        this.dom.classList.remove("good");
+        this.dom.classList.remove("bad");
+    }
+}
+
 class GamePage {
     constructor(dispatcher, user, config, tasks) {
         this.resolver = null;
@@ -139,29 +201,19 @@ class GamePage {
 
         this.page = document.querySelector(".game");
         this.taskContainer = document.querySelector(".task");
-        this.answerContainers = [1, 2, 3, 4].map(x => document.querySelector(`.answer-${x}`));
-
-        this.timer = new Timer(config.time, this.timerTick.bind(this))
-        this.timerAnimation = document.querySelector(".timer");
-        this.timerNumber = document.querySelector(".timerNumber > div");
-    }
-
-    timerTick(time) {
-        this.timerNumber.textContent = time / 1000;
-        if(time <= 0){
-            this.timer.stop();
-            this.end();
-        }
+        this.answers = [1, 2, 3, 4].map(x => new AnswerButton(document.querySelector(`.answer-${x}`)));
+        this.timer = new Timer(config.time, this.end.bind(this));
     }
 
     run() {
-        this.dispatcher.attach("answer", this.answer.bind(this))
+        this.dispatcher.attach("answer", this.answer.bind(this));
         this.page.style.display = "block";
-        this.renderRound(0)
+        this.renderRound(0);
         return new Promise(resolve => this.resolver = resolve);
     }
 
     end() {
+        this.timer.stop();
         this.dispatcher.deattach("answer");
         this.clearTask();
         this.page.style.display = "none";
@@ -170,25 +222,16 @@ class GamePage {
 
     answer(number) {
         this.timer.stop();
-        this.stopAnimation();
         const round = this.rounds[this.currentRoundIndex];
         round.rightAnswer === number ? this.nextRound(number, round.factor) : this.loose(round.rightAnswer, number);
     }
 
-    startAnimation() {
-        this.timerAnimation.style.display = "block";
-    }
-
-    stopAnimation() {
-        this.timerAnimation.style.display = "none";
-    }
-
     nextRound(number, factor) {
-        this.answerContainers[number].classList.toggle("good");
+        this.answers[number].good();
         this.result.score += factor;
         this.currentRoundIndex++;
         setTimeout(() => {
-            this.answerContainers[number].classList.toggle("good");
+            this.answers[number].reset();
             if (this.currentRoundIndex === this.rounds.length) {
                 return this.end();
             }
@@ -197,21 +240,20 @@ class GamePage {
     }
 
     loose(rightAnswer, number) {
-        this.answerContainers[number].classList.toggle("bad");
-        this.answerContainers[rightAnswer].classList.toggle("good");
+        this.answers[number].bad();
+        this.answers[rightAnswer].good();
         setTimeout(() => {
-            this.answerContainers[number].classList.toggle("bad");
-            this.answerContainers[rightAnswer].classList.toggle("good");
+            this.answers[number].reset();
+            this.answers[number].reset();
             this.end()
-        }, 1000);
+        }, 2000);
     }
 
     renderRound(number) {
         this.clearTask();
         this.taskContainer.appendChild(this.createTaskTag(this.rounds[number]));
-        this.rounds[number].answers.map((x, i) => this.answerContainers[i].textContent = x);
-        this.timer.restart();
-        this.startAnimation();
+        this.rounds[number].answers.map((x, i) => this.answers[i].setAnswer(i, x, false));
+        this.timer.start();
     }
 
     clearTask() {
