@@ -1,3 +1,12 @@
+const phrases = [
+    "Это полюбому {answer}.",
+    "Я вчера об этом думал! Это точно {answer}.",
+    "Кончно же это {answer}. Это же все знают!",
+    "Вчера говорил с Обамой. Он думает, что это {answer}.",
+    "Это сложно, я не знаю ответа.",
+    "Когда то давно люди считали, что это {answer}. Наверно ничего не изменилось."
+];
+
 function random(from, to) {
     return Math.floor(Math.random() * (to - from)) + from;
 }
@@ -206,12 +215,23 @@ class GamePage {
         this.taskContainer = document.querySelector(".task");
         this.answers = [1, 2, 3, 4].map(x => new AnswerButton(document.querySelector(`.answer-${x}`)));
         this.help5050Button = document.querySelector(".help5050");
+        this.helpPersonButton = document.querySelector(".helpPerson");
+        this.persons = [
+            document.querySelector("#bill"),
+            document.querySelector("#dan"),
+            document.querySelector("#elon"),
+            document.querySelector("#pavel"),
+            document.querySelector("#zuck"),
+        ];
+        this.personPhrase = document.querySelector(".personPhrase");
         this.timer = new Timer(config.time, this.end.bind(this));
     }
 
     initializeView() {
         this.help5050Button.classList.remove("invisible");
+        this.helpPersonButton.classList.remove("invisible");
         this.dispatcher.attach("5050", this.help5050.bind(this));
+        this.dispatcher.attach("person", this.helpPerson.bind(this));
         this.page.classList.remove("invisible");
     }
 
@@ -224,13 +244,14 @@ class GamePage {
     end() {
         this.timer.stop();
         this.dispatcher.deattach("5050");
+        this.dispatcher.deattach("person");
         this.clearTask();
         this.page.classList.add("invisible");
         this.resolver(this.result)
     }
 
     answer(number) {
-        if(this.answers[number].isDisabled) {
+        if (this.answers[number].isDisabled) {
             return;
         }
         this.timer.stop();
@@ -289,11 +310,26 @@ class GamePage {
     }
 
     help5050() {
+        this.help5050Button.classList.add("invisible");
         const firstWrongAnswer = this.answers.filter(x => !x.isRight)[random(0, 3)];
         const secondWrongAnswer = this.answers.filter(x => !x.isRight && x.index !== firstWrongAnswer.index)[random(0, 2)];
         firstWrongAnswer.disable();
         secondWrongAnswer.disable();
-        this.help5050Button.classList.add("invisible");
+    }
+
+    helpPerson() {
+        this.helpPersonButton.classList.add("invisible");
+        const one = this.persons[random(0, 4)];
+        const variants = this.answers.filter(x => !x.isDisabled);
+        const answer = variants[random(0, variants.length - 1)];
+        this.personPhrase.textContent = phrases[random(0, phrases.length - 1)].replace(/{answer}/, answer.dom.textContent);
+        this.personPhrase.classList.add("visit");
+        one.classList.add("visit");
+        setTimeout(() => {
+            one.classList.remove("visit");
+            this.personPhrase.classList.remove("visit");
+            this.personPhrase.textContent = "";
+        }, 4000);
     }
 }
 

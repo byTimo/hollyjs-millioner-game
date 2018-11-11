@@ -1,9 +1,10 @@
 <!DOCTYPE HTML>
-<html>
+<html lang="ru">
 
 <head>
     <title>HollyJs Game</title>
     <link rel="stylesheet" href="./styles.css">
+    <link href="https://fonts.googleapis.com/css?family=Quicksand:400,500" rel="stylesheet">
 </head>
 
 <body>
@@ -20,6 +21,12 @@
             </div>
         </div>
         <div class="game page invisible">
+            <img src="assets/Bill.png" class="person" id="bill">
+            <img src="assets/Dan.png" class="person" id="dan">
+            <img src="assets/Elon.png" class="person" id="elon">
+            <img src="assets/Pavel.png" id="pavel" class="person">
+            <img src="assets/Zuck.png" id="zuck" class="person">
+            <div class="personPhrase"></div>
             <div class="spiner">
                 <div class="spinner-inner"></div>
                 <div class="spinner-mask"></div>
@@ -28,6 +35,7 @@
                 </div>
             </div>
             <button class="help5050" onclick="game.push('5050');">50 на 50</button>
+            <button class="helpPerson" onclick="game.push('person');">person</button>
             <div class="task block"></div>
             <div class="answers">
                 <button class="answer-1 button" onclick="game.push('answer', 0);" ></button>
