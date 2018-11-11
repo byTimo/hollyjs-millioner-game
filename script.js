@@ -216,6 +216,7 @@ class GamePage {
         this.answers = [1, 2, 3, 4].map(x => new AnswerButton(document.querySelector(`.answer-${x}`)));
         this.help5050Button = document.querySelector(".help5050");
         this.helpPersonButton = document.querySelector(".helpPerson");
+        this.helpHollButton = document.querySelector(".helpHoll");
         this.persons = [
             document.querySelector("#bill"),
             document.querySelector("#dan"),
@@ -224,14 +225,18 @@ class GamePage {
             document.querySelector("#zuck"),
         ];
         this.personPhrase = document.querySelector(".personPhrase");
+        this.hollLevels = document.querySelectorAll(".columnLevelValue");
+        this.holl = document.querySelector(".hollBlock");
         this.timer = new Timer(config.time, this.end.bind(this));
     }
 
     initializeView() {
         this.help5050Button.classList.remove("invisible");
         this.helpPersonButton.classList.remove("invisible");
+        this.helpHollButton.classList.remove("invisible");
         this.dispatcher.attach("5050", this.help5050.bind(this));
         this.dispatcher.attach("person", this.helpPerson.bind(this));
+        this.dispatcher.attach("holl", this.helpHoll.bind(this));
         this.page.classList.remove("invisible");
     }
 
@@ -245,6 +250,7 @@ class GamePage {
         this.timer.stop();
         this.dispatcher.deattach("5050");
         this.dispatcher.deattach("person");
+        this.dispatcher.deattach("holl");
         this.clearTask();
         this.page.classList.add("invisible");
         this.resolver(this.result)
@@ -328,8 +334,19 @@ class GamePage {
         setTimeout(() => {
             one.classList.remove("visit");
             this.personPhrase.classList.remove("visit");
-            this.personPhrase.textContent = "";
         }, 4000);
+    }
+
+    helpHoll() {
+        this.helpHollButton.classList.add("invisible");
+        const first = random(0, this.answers[0].isDisabled ? 0 : 75);
+        const second = random(0, this.answers[1].isDisabled ? 0 : 100 - first);
+        const third = random(0, this.answers[2].isDisabled ? 0 : 100 - first - second);
+        const fourth = this.answers[3].isDisabled ? 0 : 100 - first - second - third;
+        const values = [first, second, third, fourth];
+        this.hollLevels.forEach((x, i) => x.style.height = `${400 * values[i] / 100}px`);
+        this.holl.classList.add("visit");
+       setTimeout(() => this.holl.classList.remove("visit"), 3000);
     }
 }
 

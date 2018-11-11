@@ -274,6 +274,10 @@ img {
     background: blue;
 }
 
+.helpHoll {
+    background: green;
+}
+
 .person {
     position: absolute;
     top: 0;
@@ -305,9 +309,41 @@ img {
     opacity: 1;
 }
 
-.holl {
-    background: green;
+.hollBlock {
+    position: absolute;
+    display: flex;
+    left: -410px;
+    top: 500px;
+    width: 400px;
+    height: 400px;
+    background: var(--blue);
+    border: 5px solid var(--light-blue);
+    transition: left 1s;
+}
+
+.hollBlock.visit {
+    left: 0;
+}
+
+.column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.columnNumber {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--dark-orange);
+}
+
+.columnLevel {
+    height: 400px;
+    display: flex;
+    flex-direction: column-reverse;
+}
+.columnLevelValue {
+    background-color: var(--orange);
     width: 50px;
-    height: 50px;
-    cursor: pointer;
 }
