@@ -1,6 +1,6 @@
 const config = {
     level: "image",
-    time: 5000
+    time: 50000
 }
 
 const levels = {

@@ -8,7 +8,7 @@
 
 <body>
     <div class="root">
-        <div class="registration page">
+        <div class="registration page invisible">
             <div class="registrationContainer">
                 <form class="form">
                     <input class="block" type="text" id="name" name="name" />
@@ -19,7 +19,7 @@
                 </form>
             </div>
         </div>
-        <div class="game page">
+        <div class="game page invisible">
             <div class="spiner">
                 <div class="spinner-inner"></div>
                 <div class="spinner-mask"></div>
@@ -27,6 +27,7 @@
                 <div class="timer">
                 </div>
             </div>
+            <button class="help5050" onclick="game.push('5050');">50 на 50</button>
             <div class="task block"></div>
             <div class="answers">
                 <button class="answer-1 button" onclick="game.push('answer', 0);" ></button>
@@ -35,7 +36,7 @@
                 <button class="answer-4 button" onclick="game.push('answer', 3);" ></button>
             </div>
         </div>
-        <div class="gameover page">
+        <div class="gameover page invisible">
             <div class="result block"></div>
             <button class="button" onclick="game.push('end');">
                 Конец

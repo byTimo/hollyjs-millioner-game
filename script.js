@@ -1,5 +1,5 @@
 function random(from, to) {
-    return Math.floor(Math.random() * (to - from + 1)) + from;
+    return Math.floor(Math.random() * (to - from)) + from;
 }
 
 class Storage {
@@ -74,13 +74,13 @@ class RegistrationPage {
 
     run() {
         this.dispatcher.attach("register", this.register.bind(this))
-        this.page.style.display = "block";
+        this.page.classList.remove("invisible");
         return new Promise(resolve => this.resolver = resolve);
     }
 
     end(user) {
         this.dispatcher.deattach("register");
-        this.page.style.display = "none";
+        this.page.classList.add("invisible")
         this.form.reset();
         this.resolver(user);
     }
@@ -158,11 +158,14 @@ class AnswerButton {
         this.reset();
     }
 
-    isRight() {
-        return this.isRight;
+    disable() {
+        this.isDisabled = true;
+        this.dom.classList.add("disabled");
     }
 
     setAnswer(index, text, isRight) {
+        this.isDisabled = false;
+        this.dom.classList.remove("disabled");
         this.index = index;
         this.isRight = isRight;
         this.dom.textContent = text;
@@ -202,26 +205,36 @@ class GamePage {
         this.page = document.querySelector(".game");
         this.taskContainer = document.querySelector(".task");
         this.answers = [1, 2, 3, 4].map(x => new AnswerButton(document.querySelector(`.answer-${x}`)));
+        this.help5050Button = document.querySelector(".help5050");
         this.timer = new Timer(config.time, this.end.bind(this));
     }
 
+    initializeView() {
+        this.help5050Button.classList.remove("invisible");
+        this.dispatcher.attach("5050", this.help5050.bind(this));
+        this.page.classList.remove("invisible");
+    }
+
     run() {
-        this.dispatcher.attach("answer", this.answer.bind(this));
-        this.page.style.display = "block";
+        this.initializeView();
         this.renderRound(0);
         return new Promise(resolve => this.resolver = resolve);
     }
 
     end() {
         this.timer.stop();
-        this.dispatcher.deattach("answer");
+        this.dispatcher.deattach("5050");
         this.clearTask();
-        this.page.style.display = "none";
+        this.page.classList.add("invisible");
         this.resolver(this.result)
     }
 
     answer(number) {
+        if(this.answers[number].isDisabled) {
+            return;
+        }
         this.timer.stop();
+        this.dispatcher.deattach("answer");
         const round = this.rounds[this.currentRoundIndex];
         round.rightAnswer === number ? this.nextRound(number, round.factor) : this.loose(round.rightAnswer, number);
     }
@@ -252,8 +265,9 @@ class GamePage {
     renderRound(number) {
         this.clearTask();
         this.taskContainer.appendChild(this.createTaskTag(this.rounds[number]));
-        this.rounds[number].answers.map((x, i) => this.answers[i].setAnswer(i, x, false));
+        this.rounds[number].answers.map((x, i) => this.answers[i].setAnswer(i, x, i === this.rounds[number].rightAnswer));
         this.timer.start();
+        this.dispatcher.attach("answer", this.answer.bind(this));
     }
 
     clearTask() {
@@ -273,6 +287,14 @@ class GamePage {
         p.textContent = task.task;
         return p;
     }
+
+    help5050() {
+        const firstWrongAnswer = this.answers.filter(x => !x.isRight)[random(0, 3)];
+        const secondWrongAnswer = this.answers.filter(x => !x.isRight && x.index !== firstWrongAnswer.index)[random(0, 2)];
+        firstWrongAnswer.disable();
+        secondWrongAnswer.disable();
+        this.help5050Button.classList.add("invisible");
+    }
 }
 
 class ResultPage {
@@ -286,14 +308,14 @@ class ResultPage {
 
     run() {
         this.dispatcher.attach("end", this.end.bind(this));
-        this.page.style.display = "block";
+        this.page.classList.remove("invisible");
         this.resultContainer.textContent = this.result.score;
         return new Promise(resolve => this.resolver = resolve);
     }
 
     end() {
         this.dispatcher.deattach("end");
-        this.page.style.display = "none";
+        this.page.classList.add("invisible");
         this.resolver();
     }
 }
