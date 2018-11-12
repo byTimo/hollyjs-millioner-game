@@ -27,11 +27,16 @@
             <img src="assets/Pavel.png" id="pavel" class="person">
             <img src="assets/Zuck.png" id="zuck" class="person">
             <div class="personPhrase"></div>
-            <div class="spiner">
-                <div class="spinner-inner"></div>
-                <div class="spinner-mask"></div>
-                <div class="spinner-mask-two"></div>
-                <div class="timer">
+            <div class="menu">
+                <button class="help help5050" onclick="game.push('5050');"><img src="assets/50-degrees-minium-agitation.svg"></button>
+                <button class="help helpPerson" onclick="game.push('person');"><img src="assets/phone-call.svg"></button>
+                <button class="help helpHoll" onclick="game.push('holl');"><img src="assets/team.svg"></button>
+                <div class="spiner">
+                    <div class="spinner-inner"></div>
+                    <div class="spinner-mask"></div>
+                    <div class="spinner-mask-two"></div>
+                    <div class="timer">
+                    </div>
                 </div>
             </div>
             <div class="hollBlock">
@@ -52,9 +57,6 @@
                     <div class="columnNumber">4</div>
                 </div>
             </div>
-            <button class="help5050" onclick="game.push('5050');">50 на 50</button>
-            <button class="helpPerson" onclick="game.push('person');">person</button>
-            <button class="helpHoll" onclick="game.push('holl');">holl</button>
             <div class="task block"></div>
             <div class="answers">
                 <button class="answer-1 button" onclick="game.push('answer', 0);" ></button>

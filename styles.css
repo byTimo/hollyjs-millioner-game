@@ -10,10 +10,10 @@
 .timer {
     box-sizing: border-box;
     position: absolute;
-    top: 3px;
-    left: 3px;
-    width: 74px;
-    height: 74px;
+    top: 5px;
+    left: 5px;
+    width: 70px;
+    height: 70px;
     background: var(--blue);
     color: var(--dark-orange);
     border-radius: 50px;
@@ -266,16 +266,22 @@ img {
     display: none;
 }
 
-.help5050 {
-    background: red;
+.help {
+    background: var(--blue);
+    border: 5px solid var(--light-blue);
+    border-radius: 100px;
+    width: 90px;
+    height: 60px;
+    cursor: pointer;
 }
 
-.helpPerson {
-    background: blue;
+.help:hover {
+    background: var(--orange);
 }
 
-.helpHoll {
-    background: green;
+.help > img {
+    width: 46px;
+    height: 46px;
 }
 
 .person {
@@ -346,4 +352,12 @@ img {
 .columnLevelValue {
     background-color: var(--orange);
     width: 50px;
+}
+
+.menu {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    border: 5px solid var(--light-blue);
+    background: var(--blue);
 }
