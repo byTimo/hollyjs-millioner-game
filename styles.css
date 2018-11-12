@@ -7,6 +7,12 @@
     --green: rgb(102, 204, 0);
 }
 
+label {
+    font-size: 16px;
+    color: var(--light-blue);
+    font-weight: 500;
+}
+
 .timer {
     box-sizing: border-box;
     position: absolute;

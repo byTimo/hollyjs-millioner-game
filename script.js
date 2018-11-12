@@ -268,7 +268,7 @@ class GamePage {
 
     nextRound(number, factor) {
         this.answers[number].good();
-        this.result.score += factor;
+        this.result.score += factor * this.timer.state / 100;
         this.currentRoundIndex++;
         setTimeout(() => {
             this.answers[number].reset();
