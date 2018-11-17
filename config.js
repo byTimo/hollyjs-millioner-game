@@ -17,22 +17,22 @@ const levels = {
     }, {
         src: "./img/react.svg",
         answers: [
-            "react",
             "raect",
             "reackt",
+            "react",
             "reakt"
         ],
-        rightAnswer: 0,
+        rightAnswer: 2,
         factor: 10,
     }, {
         src: "./img/react.svg",
         answers: [
-            "react",
-            "raect",
             "reackt",
-            "reakt"
+            "reakt",
+            "raect",
+            "react"
         ],
-        rightAnswer: 0,
+        rightAnswer: 3,
         factor: 10,
     }],
     "another": [{

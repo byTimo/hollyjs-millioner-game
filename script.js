@@ -43,14 +43,29 @@ class Game {
     async run() {
         while (true) {
             const user = await new RegistrationPage().run();
-            const result = await new GamePage(user, this.config, this.shuffleAnswers()).run();
+            const result = await new GamePage(user, this.config, this.shuffleAnswers([...this.level])).run();
             Storage.save(result.name, result.email, result.score);
             await new ResultPage(result).run();
         }
     }
 
-    shuffleAnswers() {
-        return this.level;
+    shuffleAnswers(array) {
+        let currentIndex = array.length, temporaryValue, randomIndex;
+
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+
+            // Pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+
+            // And swap it with the current element.
+            temporaryValue = array[currentIndex];
+            array[currentIndex] = array[randomIndex];
+            array[randomIndex] = temporaryValue;
+        }
+
+        return array;
     }
 }
 
