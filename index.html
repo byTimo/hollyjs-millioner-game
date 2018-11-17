@@ -16,7 +16,7 @@
                     <input class="block" type="text" id="name" name="name"/>
                     <label for="email">Email</label>
                     <input class="block" type="email" id="email" name="email"/>
-                    <button class="button" type="button" onclick="game.push('register')">
+                    <button class="button submit" type="button">
                         Поехали
                     </button>
                 </form>
@@ -30,9 +30,9 @@
             <img src="assets/Zuck.png" id="zuck" class="person">
             <div class="personPhrase"></div>
             <div class="menu">
-                <button class="help help5050" onclick="game.push('5050');"><img src="assets/50-degrees-minium-agitation.svg"></button>
-                <button class="help helpPerson" onclick="game.push('person');"><img src="assets/phone-call.svg"></button>
-                <button class="help helpHoll" onclick="game.push('holl');"><img src="assets/team.svg"></button>
+                <button class="help help5050"><img src="assets/50-degrees-minium-agitation.svg"></button>
+                <button class="help helpPerson"><img src="assets/phone-call.svg"></button>
+                <button class="help helpHoll"><img src="assets/team.svg"></button>
                 <div class="spiner">
                     <div class="spinner-inner"></div>
                     <div class="spinner-mask"></div>
@@ -61,15 +61,15 @@
             </div>
             <div class="task block"></div>
             <div class="answers">
-                <button class="answer-1 button" onclick="game.push('answer', 0);" ></button>
-                <button class="answer-2 button" onclick="game.push('answer', 1);" ></button>
-                <button class="answer-3 button" onclick="game.push('answer', 2);" ></button>
-                <button class="answer-4 button" onclick="game.push('answer', 3);" ></button>
+                <button class="answer-1 button" ></button>
+                <button class="answer-2 button" ></button>
+                <button class="answer-3 button"></button>
+                <button class="answer-4 button"></button>
             </div>
         </div>
         <div class="gameover page invisible">
             <div class="result block"></div>
-            <button class="button" onclick="game.push('end');">
+            <button class="button end">
                 Конец
             </button>
         </div>

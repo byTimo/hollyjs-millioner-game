@@ -34,63 +34,53 @@ class Storage {
     }
 }
 
-class Dispatcher {
-    constructor() {
-        this.listeners = {};
-    }
-
-    attach(message, callback) {
-        this.listeners[message] = callback;
-    }
-
-    deattach(message) {
-        delete this.listeners[message];
-    }
-
-    push(message, parameter) {
-        this.listeners[message](parameter);
-    }
-}
-
 class Game {
     constructor(config, levels) {
         this.config = config;
         this.level = levels[config.level];
-        this.dispatcher = new Dispatcher();
-    }
-
-    push(message, parameter) {
-        this.dispatcher.push(message, parameter);
     }
 
     async run() {
         while (true) {
-            const user = await new RegistrationPage(this.dispatcher).run();
-            const result = await new GamePage(this.dispatcher, user, this.config, this.level).run();
+            const user = await new RegistrationPage().run();
+            const result = await new GamePage(user, this.config, this.shuffleAnswers()).run();
             Storage.save(result.name, result.email, result.score);
-            await new ResultPage(this.dispatcher, result).run();
+            await new ResultPage(result).run();
         }
+    }
+
+    shuffleAnswers() {
+        return this.level;
     }
 }
 
 class RegistrationPage {
-    constructor(dispatcher) {
-        this.dispatcher = dispatcher;
+    constructor() {
         this.resolver = null;
         this.page = document.querySelector(".registration");
+        this.submit = document.querySelector(".submit");
         this.form = document.querySelector(".form");
+        this.register = this.register.bind(this);
+    }
+
+    initialize() {
+        this.form.reset();
+        this.page.classList.remove("invisible");
+        this.submit.addEventListener("click", this.register);
     }
 
     run() {
-        this.dispatcher.attach("register", this.register.bind(this))
-        this.page.classList.remove("invisible");
+        this.initialize();
         return new Promise(resolve => this.resolver = resolve);
     }
 
+    dispose() {
+        this.page.classList.add("invisible");
+        this.submit.removeEventListener("click", this.register)
+    }
+
     end(user) {
-        this.dispatcher.deattach("register");
-        this.page.classList.add("invisible")
-        this.form.reset();
+        this.dispose();
         this.resolver(user);
     }
 
@@ -160,15 +150,17 @@ class Timer {
     }
 }
 
-
 class AnswerButton {
-    constructor(dom) {
+    constructor(dom, callback) {
         this.dom = dom;
+        this.callback = callback;
         this.reset();
+        this.handleClick = this.handleClick.bind(this);
     }
 
     disable() {
         this.isDisabled = true;
+        this.dom.removeEventListener("click", this.handleClick);
         this.dom.classList.add("disabled");
     }
 
@@ -178,6 +170,13 @@ class AnswerButton {
         this.index = index;
         this.isRight = isRight;
         this.dom.textContent = text;
+        this.dom.addEventListener("click", this.handleClick);
+    }
+
+    handleClick() {
+        if(!this.isDisabled) {
+            this.callback(this.index);
+        }
     }
 
     good() {
@@ -200,9 +199,8 @@ class AnswerButton {
 }
 
 class GamePage {
-    constructor(dispatcher, user, config, tasks) {
+    constructor(user, config, tasks) {
         this.resolver = null;
-        this.dispatcher = dispatcher;
         this.result = {
             name: user.name,
             email: user.email,
@@ -213,7 +211,8 @@ class GamePage {
 
         this.page = document.querySelector(".game");
         this.taskContainer = document.querySelector(".task");
-        this.answers = [1, 2, 3, 4].map(x => new AnswerButton(document.querySelector(`.answer-${x}`)));
+        this.answer = this.answer.bind(this);
+        this.answers = [1, 2, 3, 4].map(x => new AnswerButton(document.querySelector(`.answer-${x}`), this.answer));
         this.help5050Button = document.querySelector(".help5050");
         this.helpPersonButton = document.querySelector(".helpPerson");
         this.helpHollButton = document.querySelector(".helpHoll");
@@ -228,40 +227,45 @@ class GamePage {
         this.hollLevels = document.querySelectorAll(".columnLevelValue");
         this.holl = document.querySelector(".hollBlock");
         this.timer = new Timer(config.time, this.end.bind(this));
+
+        this.help5050 = this.help5050.bind(this);
+        this.helpHoll = this.helpHoll.bind(this);
+        this.helpPerson = this.helpPerson.bind(this);
     }
 
-    initializeView() {
+    initialize() {
         this.help5050Button.classList.remove("invisible");
         this.helpPersonButton.classList.remove("invisible");
         this.helpHollButton.classList.remove("invisible");
-        this.dispatcher.attach("5050", this.help5050.bind(this));
-        this.dispatcher.attach("person", this.helpPerson.bind(this));
-        this.dispatcher.attach("holl", this.helpHoll.bind(this));
+        this.help5050Button.addEventListener("click", this.help5050);
+        this.helpHollButton.addEventListener("click", this.helpHoll);
+        this.helpPersonButton.addEventListener("click", this.helpPerson);
         this.page.classList.remove("invisible");
     }
 
     run() {
-        this.initializeView();
+        this.initialize();
         this.renderRound(0);
         return new Promise(resolve => this.resolver = resolve);
     }
 
-    end() {
+    dispose() {
+        this.help5050Button.removeEventListener("click", this.help5050);
+        this.helpHollButton.removeEventListener("click", this.helpHoll);
+        this.helpPersonButton.removeEventListener("click", this.helpPerson);
         this.timer.stop();
-        this.dispatcher.deattach("5050");
-        this.dispatcher.deattach("person");
-        this.dispatcher.deattach("holl");
         this.clearTask();
         this.page.classList.add("invisible");
+    }
+
+    end() {
+        this.dispose();
         this.resolver(this.result)
     }
 
     answer(number) {
-        if (this.answers[number].isDisabled) {
-            return;
-        }
         this.timer.stop();
-        this.dispatcher.deattach("answer");
+        this.answers.map(x => x.disable());
         const round = this.rounds[this.currentRoundIndex];
         round.rightAnswer === number ? this.nextRound(number, round.factor) : this.loose(round.rightAnswer, number);
     }
@@ -294,7 +298,6 @@ class GamePage {
         this.taskContainer.appendChild(this.createTaskTag(this.rounds[number]));
         this.rounds[number].answers.map((x, i) => this.answers[i].setAnswer(i, x, i === this.rounds[number].rightAnswer));
         this.timer.start();
-        this.dispatcher.attach("answer", this.answer.bind(this));
     }
 
     clearTask() {
@@ -346,29 +349,38 @@ class GamePage {
         const values = [first, second, third, fourth];
         this.hollLevels.forEach((x, i) => x.style.height = `${400 * values[i] / 100}px`);
         this.holl.classList.add("visit");
-       setTimeout(() => this.holl.classList.remove("visit"), 3000);
+        setTimeout(() => this.holl.classList.remove("visit"), 3000);
     }
 }
 
 class ResultPage {
-    constructor(dispatcher, result) {
+    constructor(result) {
         this.resolver = null;
-        this.dispatcher = dispatcher;
         this.result = result;
         this.page = document.querySelector(".gameover");
         this.resultContainer = document.querySelector(".result");
+        this.button = document.querySelector(".end");
+        this.end = this.end.bind(this);
+    }
+
+    initialize() {
+        this.button.addEventListener("click", this.end);
+        this.page.classList.remove("invisible");
+        this.resultContainer.textContent = this.result.score;
     }
 
     run() {
-        this.dispatcher.attach("end", this.end.bind(this));
-        this.page.classList.remove("invisible");
-        this.resultContainer.textContent = this.result.score;
+        this.initialize();
         return new Promise(resolve => this.resolver = resolve);
     }
 
-    end() {
-        this.dispatcher.deattach("end");
+    dispose() {
+        this.button.removeEventListener("click", this.end);
         this.page.classList.add("invisible");
+    }
+
+    end() {
+        this.dispose();
         this.resolver();
     }
 }
