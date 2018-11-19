@@ -25,6 +25,9 @@
 </div>
 <script src="./config.js"></script>
 <script>
+    const zvezdify = (email) => {
+        return email.split("@")[0] + "@***";
+    };
     document.addEventListener("DOMContentLoaded", () => {
         const container = document.querySelector(".tbody");
         const raw = localStorage.getItem("holyJs");
@@ -40,7 +43,7 @@
             const second = document.createElement("td");
             second.textContent = x.name;
             const third = document.createElement("td");
-            third.textContent = x.email;
+            third.textContent = zvezdify(x.email);
             const fouth = document.createElement("td");
             fouth.textContent = x.score;
 
