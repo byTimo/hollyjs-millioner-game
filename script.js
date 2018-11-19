@@ -12,15 +12,18 @@ function random(from, to) {
 }
 
 class Storage {
-    static save(name, email, score) {
+    static save(level, name, email, score) {
         const data = Storage.select();
-        data[name] = {
+        const levelData = data[level] ? data[level] : {};
+        levelData[name] = {
             name,
             email,
             score
         }
 
-        localStorage.setItem("data", JSON.stringify(data));
+        data[level] = levelData;
+
+        localStorage.setItem("holyJs", JSON.stringify(data));
     }
 
     static get(name) {
@@ -29,7 +32,7 @@ class Storage {
     }
 
     static select() {
-        const data = localStorage.getItem("data")
+        const data = localStorage.getItem("holyJs")
         return data ? JSON.parse(data) : {};
     }
 }
@@ -44,7 +47,7 @@ class Game {
         while (true) {
             const user = await new RegistrationPage().run();
             const result = await new GamePage(user, this.config, this.shuffleAnswers([...this.level])).run();
-            Storage.save(result.name, result.email, result.score);
+            Storage.save(config.level, result.name, result.email, result.score);
             await new ResultPage(result).run();
         }
     }
@@ -189,7 +192,7 @@ class AnswerButton {
     }
 
     handleClick() {
-        if(!this.isDisabled) {
+        if (!this.isDisabled) {
             this.callback(this.index);
         }
     }

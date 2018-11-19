@@ -367,3 +367,41 @@ img {
     border: 5px solid var(--light-blue);
     background: var(--blue);
 }
+
+.leaderboard {
+    width: 100%;
+    border: 5px solid var(--light-blue);
+    color: var(--light-blue);
+    background: var(--blue);
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 24px;
+    text-align: center;
+}
+
+.leaderboard > thead {
+    border-bottom: 5px solid var(--light-blue);
+}
+
+.leaderboard > thead > tr > th:first-child {
+    width: 75px;
+}
+
+.leaderboard > thead > tr > th {
+    border: 3px solid var(--light-blue);
+}
+
+.row {
+}
+
+.row > td {
+    border: 3px solid var(--light-blue);
+}
+
+.row > td:first-child {
+    color: var(--orange);
+}
+
+.row > td:last-child {
+    color: var(--dark-orange);
+}

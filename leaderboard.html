@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HollyJs Game Leaderboard</title>
+    <link rel="stylesheet" href="./styles.css">
+    <link href="https://fonts.googleapis.com/css?family=Quicksand:400,500" rel="stylesheet">
+</head>
+<body>
+<div class="root">
+    <div class="page">
+        <table class="leaderboard">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Score</th>
+            </tr>
+            </thead>
+            <tbody class="tbody">
+            </tbody>
+        </table>
+    </div>
+</div>
+<script src="./config.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const container = document.querySelector(".tbody");
+        const raw = localStorage.getItem("holyJs");
+        const playerScores = raw ? JSON.parse(raw)[config.level] : {};
+        const scores = [];
+
+        Object.keys(playerScores).forEach(x => scores.push(playerScores[x]));
+        scores.sort((a, b) => b.score - a.score);
+
+        scores.forEach((x, i) => {
+            const first = document.createElement("td");
+            first.textContent = (i + 1).toString();
+            const second = document.createElement("td");
+            second.textContent = x.name;
+            const third = document.createElement("td");
+            third.textContent = x.email;
+            const fouth = document.createElement("td");
+            fouth.textContent = x.score;
+
+            const tr = document.createElement("tr");
+            tr.classList.add("row");
+            tr.appendChild(first);
+            tr.appendChild(second);
+            tr.appendChild(third);
+            tr.appendChild(fouth);
+            container.appendChild(tr);
+        })
+    });
+</script>
+</body>
+</html>
