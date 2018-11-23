@@ -331,7 +331,7 @@ class GamePage {
             return img;
         }
 
-        const p = document.createElement("p");
+        const p = document.createElement("pre");
         p.textContent = task.task;
         return p;
     }
