@@ -325,7 +325,7 @@ img {
     position: absolute;
     display: flex;
     left: -410px;
-    top: 500px;
+    top: 400px;
     width: 400px;
     height: 400px;
     background: var(--blue);

@@ -1,6 +1,6 @@
-const config = {
+﻿const config = {
     level: "image",
-    time: 500000
+    time: 30000
 }
 
 const levels = {
@@ -339,7 +339,7 @@ const levels = {
         rightAnswer: 2,
         factor: 2,
     }, {
-        src: "./assets/logos/kontur.png",
+        src: "./assets/logos/kontur.jpg",
         answers: [
             "Контур",
             "СКБ Контур",
