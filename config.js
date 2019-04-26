@@ -1,6 +1,7 @@
 ﻿const config = {
-    level: "image",
-    time: 30000
+    level: "text",
+    levels: ["text", "image"],
+    time: 50000
 }
 
 const levels = {
@@ -75,7 +76,8 @@ const levels = {
         rightAnswer: 1,
         factor: 2
     }, {
-        task: `Сколько дочерних DOM-узлов у элемента <ul> в примере ниже: <ul>
+        task: `Сколько дочерних DOM-узлов у элемента <ul> в примере ниже: 
+        <ul>
           <li>Привет</li>
             <li>Мир</li>
         </ul>`,
@@ -137,7 +139,140 @@ const levels = {
         ],
         rightAnswer: 3,
         factor: 2
-    }],
+        }, {
+            task: "Какого типа данных не существует в JS?",
+            answers: [
+                "char",
+                "null",
+                "symbol",
+                "string"
+            ],
+            rightAnswer: 0,
+            factor: 1
+        }, {
+            task: `
+            Что выведется в консоль в результате выполнения кода:
+
+function func() {
+  z = 20;
+}
+func();
+console.log(z);
+            `,
+            answers: [
+                "undefined",
+                "Будет ошибка",
+                "20",
+                "null"
+            ],
+            rightAnswer: 2,
+            factor: 2
+        }, {
+            task: "Что не является прототипом у const arr = [1,2,3]?",
+            answers: [
+                "Object",
+                "Array",
+                "null",
+                "Function"
+            ],
+            rightAnswer: 3,
+            factor: 1
+        }, {
+            task: "Какое число невалидно в JS?",
+            answers: [
+                "1 000",
+                "0.00002",
+                "0xFF",
+                "-Infinity"
+            ],
+            rightAnswer: 0,
+            factor: 2
+        }, {
+            task: "Какого метода массива не существует в JS?",
+            answers: [
+                "unshift",
+                "select",
+                "join",
+                "some"
+            ],
+            rightAnswer: 1,
+            factor: 1
+        }, {
+            task: "Какого ключевого слова нет в JS?",
+            answers: [
+                "static",
+                "super",
+                "interface",
+                "extends"
+            ],
+            rightAnswer: 2,
+            factor: 2
+        }, {
+            task: `
+            Укажи все строки, из-за которых есть ошибки в консоли:
+
+1 const arr = [1,2,3,4,5];
+2 
+3 for (let a = 1; a < 50; a + 5) {
+4     const item = arr(a);
+5 
+6     if (a = 50) {
+7         arr.push[a];
+8     }
+9 }
+            `,
+            answers: [
+                "4",
+                "3,7",
+                "3,4",
+                "три, четыре, семь"
+            ],
+            rightAnswer: 0,
+            factor: 1
+        }, {
+            task: "Какого оператора нет в JS?",
+            answers: [
+                ">>",
+                "^",
+                "#",
+                "*"
+            ],
+            rightAnswer: 2,
+            factor: 1
+        }, {
+            task: `
+            Что выведется в консоль в результате выполнения кода:
+
+let arr = [];
+arr[1] = 1;
+arr[23] = 23;
+console.log(arr.length);
+            `,
+            answers: [
+                "0",
+                "1",
+                "23",
+                "24"
+            ],
+            rightAnswer: 3,
+            factor: 1
+        }, {
+            task: `
+            Что выведется в консоль в результате выполнения кода:
+
+var y = 'foo';
+var x = y = 'bar';
+console.log(x);
+            `,
+            answers: [
+                "'foo'",
+                "'bar'",
+                "NaN",
+                "Будет ошибка"
+            ],
+            rightAnswer: 1,
+            factor: 1
+        }],
     "image": [{
         src: "./assets/logos/react.svg",
         answers: [

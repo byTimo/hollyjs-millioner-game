@@ -45,9 +45,10 @@ class Game {
 
     async run() {
         while (true) {
-            const user = await new RegistrationPage().run();
-            const result = await new GamePage(user, this.config, this.shuffleAnswers([...this.level])).run();
-            Storage.save(config.level, result.name, result.email, result.score);
+            const register = await new RegistrationPage(this.config.levels).run();
+            const selectedLevel = levels[register.level];
+            const result = await new GamePage(register.user, this.config, this.shuffleAnswers([...selectedLevel])).run();
+            Storage.save(register.level, result.name, result.email, result.score);
             await new ResultPage(result).run();
         }
     }
@@ -73,11 +74,13 @@ class Game {
 }
 
 class RegistrationPage {
-    constructor() {
+    constructor(availableLevels) {
         this.resolver = null;
         this.page = document.querySelector(".registration");
         this.submit = document.querySelector(".submit");
         this.form = document.querySelector(".form");
+        this.levels = document.querySelector(".levels");
+        this.availableLevels = availableLevels;
         this.register = this.register.bind(this);
     }
 
@@ -85,6 +88,17 @@ class RegistrationPage {
         this.form.reset();
         this.page.classList.remove("invisible");
         this.submit.addEventListener("click", this.register);
+        for (let i = 0; i < this.availableLevels.length; i++) {
+            const option = document.createElement("option");
+            option.textContent = this.availableLevels[i];
+            if(i === 0) {
+                option.setAttribute("selected", true);
+            }
+            this.levels.appendChild(option);
+        }
+        if (this.availableLevels.length > 1) {
+            this.levels.classList.remove("invisible");
+        }
     }
 
     run() {
@@ -93,6 +107,7 @@ class RegistrationPage {
     }
 
     dispose() {
+        this.levels.innerHTML = '';
         this.page.classList.add("invisible");
         this.submit.removeEventListener("click", this.register)
     }
@@ -110,7 +125,7 @@ class RegistrationPage {
         }
 
         if (user.name && user.email) {
-            this.end(user);
+            this.end({user, level: this.levels.options[this.levels.selectedIndex].text});
         }
     }
 }

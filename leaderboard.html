@@ -31,7 +31,7 @@
     document.addEventListener("DOMContentLoaded", () => {
         const container = document.querySelector(".tbody");
         const raw = localStorage.getItem("holyJs");
-        const playerScores = raw ? JSON.parse(raw)[config.level] : {};
+        const playerScores = raw ? JSON.parse(raw)["text"] : {};
         const scores = [];
 
         Object.keys(playerScores).forEach(x => scores.push(playerScores[x]));
